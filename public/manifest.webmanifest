@@ -1,0 +1,19 @@
+{
+  "name": "ولد أم بنت — صوّت",
+  "short_name": "ولد أم بنت",
+  "description": "صوّت بين ولد وبنت. صفحة واحدة، صوت واحد لكل جهاز.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FAFAF7",
+  "theme_color": "#FAFAF7",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "categories": ["lifestyle", "social"]
+}

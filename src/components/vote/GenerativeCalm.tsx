@@ -88,19 +88,24 @@ function Half({
   seed: number;
 }) {
   const [hover, setHover] = useState(false);
+  const hintInset =
+    align === "top"
+      ? { bottom: "calc(24px + env(safe-area-inset-top, 0px))" }
+      : { top: "calc(24px)" };
+
   return (
     <button
       type="button"
       aria-label={ariaLabel}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
       onFocus={() => setHover(true)}
       onBlur={() => setHover(false)}
       onClick={onPick}
-      className="relative isolate overflow-hidden text-left outline-none"
+      className="relative isolate overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
       style={{ background, color: ink }}
     >
-      <Critters kind={critterKind} color={critterColor} count={11} seed={seed} />
+      <Critters kind={critterKind} color={critterColor} count={9} seed={seed} />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 transition-opacity duration-700"
@@ -109,7 +114,7 @@ function Half({
           opacity: hover ? 1 : 0.7,
         }}
       />
-      <div className="relative z-10 flex h-full items-center justify-center px-6">
+      <div className="relative z-10 flex h-full items-center justify-center px-4">
         <div
           className="grid place-items-center text-center transition-[letter-spacing,transform] duration-700"
           style={{
@@ -120,7 +125,7 @@ function Half({
           <span
             className="block select-none font-extrabold leading-none drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]"
             style={{
-              fontSize: "clamp(96px, 15vw, 220px)",
+              fontSize: "clamp(72px, 17vw, 220px)",
               fontFamily: "Cairo, system-ui",
             }}
           >
@@ -128,20 +133,16 @@ function Half({
           </span>
           <span
             lang="en"
-            className="mt-4 block font-mono text-[11px] uppercase opacity-60"
-            style={{ letterSpacing: "0.5em", color: accent }}
+            className="mt-3 block font-mono text-[10px] uppercase opacity-60 sm:text-[11px]"
+            style={{ letterSpacing: "0.45em", color: accent }}
           >
             {labelLatin}
           </span>
         </div>
       </div>
       <span
-        className="absolute z-10 text-[12.5px] uppercase tracking-[0.32em] opacity-65"
-        style={{
-          [align === "top" ? "top" : "bottom"]: "20px",
-          insetInlineEnd: "24px",
-          color: accent,
-        }}
+        className="absolute z-10 left-1/2 -translate-x-1/2 text-[11.5px] uppercase tracking-[0.28em] opacity-65 sm:text-[12.5px] sm:tracking-[0.32em]"
+        style={{ ...hintInset, color: accent }}
       >
         اضغط للاختيار
       </span>

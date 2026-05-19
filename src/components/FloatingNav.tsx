@@ -33,10 +33,13 @@ export function FloatingNav({
     <nav
       aria-label="التنقّل"
       className={[
-        "fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-full border px-2 py-1.5 shadow-[0_8px_24px_-12px_rgba(20,18,15,0.25)] backdrop-blur",
+        "fixed left-1/2 z-50 -translate-x-1/2 rounded-full border px-1.5 py-1.5 shadow-[0_8px_24px_-12px_rgba(20,18,15,0.25)] backdrop-blur",
         tone.pill,
       ].join(" ")}
-      style={{ fontFamily: "Cairo, system-ui" }}
+      style={{
+        fontFamily: "Cairo, system-ui",
+        bottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
+      }}
     >
       <ul className="flex items-center gap-1">
         {links.map((l) => {
@@ -45,9 +48,10 @@ export function FloatingNav({
             <li key={l.href}>
               <Link
                 href={l.href}
+                prefetch
                 aria-current={active ? "page" : undefined}
                 className={[
-                  "inline-flex h-9 items-center rounded-full px-4 text-[13px] transition-colors",
+                  "inline-flex h-11 min-w-[88px] items-center justify-center rounded-full px-4 text-[13.5px] font-medium transition-colors active:scale-[0.98]",
                   active ? tone.active : "text-ink/80 hover:bg-black/5",
                 ].join(" ")}
               >

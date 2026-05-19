@@ -63,7 +63,7 @@ function layout(seed: number, count: number): Item[] {
   return Array.from({ length: count }, () => ({
     x: 6 + r() * 88,
     y: 8 + r() * 84,
-    size: 64 + r() * 80,
+    size: 9 + r() * 9, // vmin units; 9..18vmin scales with viewport
     rot: (r() - 0.5) * 24,
     opacity: 0.14 + r() * 0.14,
     delay: r() * 6,
@@ -106,8 +106,8 @@ export function Critters({
             viewBox="0 0 86 96"
             style={{
               display: "block",
-              width: `${it.size}px`,
-              height: `${(it.size * 96) / 86}px`,
+              width: `${it.size}vmin`,
+              height: `${(it.size * 96) / 86}vmin`,
               transform: `rotate(${it.rot}deg)`,
             }}
           >
