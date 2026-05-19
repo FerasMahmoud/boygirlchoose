@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { FloatingNav } from "@/components/FloatingNav";
 import { Critters } from "@/components/vote/Critters";
-import { getIpHash } from "@/server/ip";
-import { getMyVote, getTallies, listVotes } from "@/server/store";
+import { findMyVote } from "@/server/me";
+import { getTallies, listVotes } from "@/server/store";
 import { DASH_THEMES, type DashTheme } from "./themes";
 import { VotesList } from "./VotesList";
 
@@ -10,8 +10,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function DashboardPage() {
-  const ipHash = await getIpHash();
-  const mine = await getMyVote(ipHash);
+  const mine = await findMyVote();
   if (!mine) redirect("/");
 
   const [tallies, votes] = await Promise.all([getTallies(), listVotes(200)]);

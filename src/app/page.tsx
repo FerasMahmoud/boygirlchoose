@@ -1,13 +1,11 @@
 import { FloatingNav } from "@/components/FloatingNav";
 import { GenerativeCalm } from "@/components/vote/GenerativeCalm";
-import { getIpHash } from "@/server/ip";
-import { getMyVote } from "@/server/store";
+import { findMyVote } from "@/server/me";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const ipHash = await getIpHash();
-  const mine = await getMyVote(ipHash);
+  const mine = await findMyVote();
   return (
     <div className="relative h-dvh w-full overflow-hidden">
       <GenerativeCalm />

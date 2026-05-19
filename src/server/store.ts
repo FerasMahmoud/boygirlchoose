@@ -59,6 +59,37 @@ export async function getMyVote(ipHash: string): Promise<Vote | null> {
   return rows[0] ?? null;
 }
 
+export async function getVoteById(id: number): Promise<Vote | null> {
+  if (!hasDb) {
+    for (const v of mem.values()) if (v.id === id) return v;
+    return null;
+  }
+  const rows = await db.select().from(votes).where(eq(votes.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function updateVoteById(
+  id: number,
+  patch: { choice: "boy" | "girl"; name: string; babyName: string | null },
+): Promise<Vote | null> {
+  if (!hasDb) {
+    for (const v of mem.values()) {
+      if (v.id === id) {
+        const next = { ...v, ...patch, updatedAt: new Date() };
+        mem.set(v.ipHash, next);
+        return next;
+      }
+    }
+    return null;
+  }
+  const [row] = await db
+    .update(votes)
+    .set({ ...patch, updatedAt: new Date() })
+    .where(eq(votes.id, id))
+    .returning();
+  return row ?? null;
+}
+
 export async function getTallies(): Promise<{ boy: number; girl: number; total: number }> {
   if (!hasDb) {
     let boy = 0;

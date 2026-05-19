@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getIpHash } from "./ip";
-import { upsertVote } from "./store";
+import { readVoteCookie, writeVoteCookie } from "./cookies";
+import { getClientId } from "./ip";
+import { rateLimit } from "./ratelimit";
+import { getVoteById, upsertVote, updateVoteById } from "./store";
 
 export type VoteState = { ok: boolean; error?: string };
 
@@ -18,13 +20,29 @@ export async function submitVote(_prev: VoteState, fd: FormData): Promise<VoteSt
   if (!NAME_RE.test(nameRaw)) return { ok: false, error: "اسم غير صالح — حرفين على الأقل" };
   if (babyRaw && !BABY_RE.test(babyRaw)) return { ok: false, error: "اسم المولود غير صالح" };
 
-  const ipHash = await getIpHash();
-  await upsertVote({
+  const { ipHash } = await getClientId();
+
+  const rl = rateLimit(ipHash);
+  if (!rl.allowed) {
+    const seconds = Math.ceil(rl.resetIn / 1000);
+    return { ok: false, error: `محاولات كثيرة — أعد المحاولة بعد ${seconds} ثانية` };
+  }
+
+  const cookieVoteId = await readVoteCookie();
+  const patch: { choice: "boy" | "girl"; name: string; babyName: string | null } = {
     choice: choiceRaw,
     name: nameRaw,
     babyName: babyRaw || null,
-    ipHash,
-  });
+  };
+
+  let saved = cookieVoteId ? await getVoteById(cookieVoteId) : null;
+  if (saved) {
+    saved = await updateVoteById(saved.id, patch);
+  } else {
+    saved = await upsertVote({ ...patch, ipHash });
+    await writeVoteCookie(saved.id);
+  }
+
   revalidatePath("/dashboard");
   revalidatePath("/");
   redirect("/dashboard");
