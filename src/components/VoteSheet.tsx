@@ -35,13 +35,6 @@ export function VoteSheet({
     if (open) requestAnimationFrame(() => inputRef.current?.focus());
   }, [open]);
 
-  useEffect(() => {
-    if (state.ok) {
-      const t = setTimeout(onClose, 700);
-      return () => clearTimeout(t);
-    }
-  }, [state.ok, onClose]);
-
   return (
     <dialog
       ref={dialogRef}
@@ -81,11 +74,6 @@ export function VoteSheet({
             {state.error}
           </p>
         ) : null}
-        {state.ok ? (
-          <p className="text-[12.5px] text-sage" role="status">
-            تم تسجيل اختيارك. شكراً لك.
-          </p>
-        ) : null}
         <div className="mt-1 flex items-center justify-between gap-3">
           <button
             type="button"
@@ -97,9 +85,10 @@ export function VoteSheet({
           <button
             type="submit"
             disabled={pending}
-            className="h-10 rounded-full bg-ink px-5 text-[13.5px] font-semibold text-paper disabled:opacity-60"
+            className="h-10 rounded-full px-5 text-[13.5px] font-semibold text-white disabled:opacity-60"
+            style={{ background: accent }}
           >
-            {pending ? "جاري الإرسال…" : "أرسل"}
+            {pending ? "جاري الإرسال…" : "أرسل وانتقل للوحة"}
           </button>
         </div>
       </form>

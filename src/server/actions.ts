@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getIpHash } from "./ip";
 import { upsertVote } from "./store";
 
@@ -17,8 +18,6 @@ export async function submitVote(_prev: VoteState, fd: FormData): Promise<VoteSt
   const ipHash = await getIpHash();
   await upsertVote({ choice: choiceRaw, name: nameRaw, ipHash });
   revalidatePath("/dashboard");
-  revalidatePath("/v1");
-  revalidatePath("/v2");
-  revalidatePath("/v3");
-  return { ok: true };
+  revalidatePath("/");
+  redirect("/dashboard");
 }
