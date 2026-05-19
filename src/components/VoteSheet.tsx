@@ -69,6 +69,19 @@ export function VoteSheet({
             className="h-11 rounded-lg border border-black/15 bg-white px-3 text-[15px] outline-none transition-colors focus:border-ink"
           />
         </label>
+        <label className="flex flex-col gap-2 text-[13px] font-medium">
+          <span className="flex items-baseline justify-between gap-2">
+            اسم مقترح للمولود
+            <span className="text-[11.5px] font-normal text-ink/55">اختياري</span>
+          </span>
+          <input
+            name="babyName"
+            type="text"
+            maxLength={40}
+            placeholder={`اقترح اسماً لـ ${label} (إن أحببت)`}
+            className="h-11 rounded-lg border border-black/15 bg-white px-3 text-[15px] outline-none transition-colors focus:border-ink"
+          />
+        </label>
         {state.error ? (
           <p className="text-[12.5px] text-[oklch(46%_0.18_25)]" role="alert">
             {state.error}

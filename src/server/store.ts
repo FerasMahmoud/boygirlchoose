@@ -9,17 +9,25 @@ let memId = 1;
 export async function upsertVote(input: {
   choice: "boy" | "girl";
   name: string;
+  babyName: string | null;
   ipHash: string;
 }): Promise<Vote> {
   if (!hasDb) {
     const existing = mem.get(input.ipHash);
     const now = new Date();
     const row: MemVote = existing
-      ? { ...existing, choice: input.choice, name: input.name, updatedAt: now }
+      ? {
+          ...existing,
+          choice: input.choice,
+          name: input.name,
+          babyName: input.babyName,
+          updatedAt: now,
+        }
       : {
           id: memId++,
           choice: input.choice,
           name: input.name,
+          babyName: input.babyName,
           ipHash: input.ipHash,
           createdAt: now,
           updatedAt: now,
@@ -33,7 +41,12 @@ export async function upsertVote(input: {
     .values(input)
     .onConflictDoUpdate({
       target: votes.ipHash,
-      set: { choice: input.choice, name: input.name, updatedAt: new Date() },
+      set: {
+        choice: input.choice,
+        name: input.name,
+        babyName: input.babyName,
+        updatedAt: new Date(),
+      },
     })
     .returning();
   if (!row) throw new Error("upsert failed");

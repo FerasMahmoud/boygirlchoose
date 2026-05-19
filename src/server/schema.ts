@@ -8,6 +8,7 @@ export const votes = pgTable(
     id: serial("id").primaryKey(),
     choice: choiceEnum("choice").notNull(),
     name: varchar("name", { length: 80 }).notNull(),
+    babyName: varchar("baby_name", { length: 80 }),
     ipHash: varchar("ip_hash", { length: 64 }).notNull().unique(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

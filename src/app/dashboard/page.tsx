@@ -128,13 +128,14 @@ export default async function DashboardPage() {
               <tr>
                 <th className="px-5 py-3 font-medium">اسم المصوِّت</th>
                 <th className="px-5 py-3 font-medium">اختار</th>
+                <th className="px-5 py-3 font-medium">اقتراح اسم المولود</th>
                 <th className="px-5 py-3 font-medium">آخر تحديث</th>
               </tr>
             </thead>
             <tbody>
               {votes.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-5 py-10 text-center" style={{ color: t.inkSoft }}>
+                  <td colSpan={4} className="px-5 py-10 text-center" style={{ color: t.inkSoft }}>
                     لا أصوات بعد. كن أوّل المصوّتين.
                   </td>
                 </tr>
@@ -177,6 +178,13 @@ export default async function DashboardPage() {
                           />
                           {v.choice === "boy" ? "ولد" : "بنت"}
                         </span>
+                      </td>
+                      <td className="px-5 py-3">
+                        {v.babyName ? (
+                          <span style={{ color: t.ink, fontWeight: 500 }}>{v.babyName}</span>
+                        ) : (
+                          <span style={{ color: t.inkSoft, opacity: 0.5 }}>—</span>
+                        )}
                       </td>
                       <td className="px-5 py-3 font-mono text-[12px]" style={{ color: t.inkSoft }}>
                         {new Date(v.updatedAt).toLocaleString("ar", {
