@@ -4,9 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "/v1", label: "النسخة ١" },
-  { href: "/v2", label: "النسخة ٢" },
-  { href: "/v3", label: "النسخة ٣" },
+  { href: "/", label: "التصويت" },
   { href: "/dashboard", label: "اللوحة" },
 ];
 
@@ -27,7 +25,7 @@ export function FloatingNav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className={[
-                  "inline-flex h-9 items-center rounded-full px-3 text-[13px] transition-colors",
+                  "inline-flex h-9 items-center rounded-full px-4 text-[13px] transition-colors",
                   active ? "bg-ink text-paper" : "text-ink/80 hover:bg-black/5",
                 ].join(" ")}
               >

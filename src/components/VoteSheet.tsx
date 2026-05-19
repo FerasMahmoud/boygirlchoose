@@ -59,10 +59,11 @@ export function VoteSheet({
           <span className="h-3 w-3 rounded-full" style={{ background: accent }} aria-hidden />
         </header>
         <p className="text-[13.5px] leading-6 text-ink/70">
-          اكتب اسمك حتى نعرف من اختار. صوت واحد لكل جهاز — يمكنك تعديل اختيارك لاحقاً.
+          اكتب اسمك أنت — حتى نعرف مَن من العائلة اختار {label}. صوت واحد لكل جهاز، ويمكنك تعديل
+          اختيارك لاحقاً.
         </p>
         <label className="flex flex-col gap-2 text-[13px] font-medium">
-          الاسم
+          اسمك
           <input
             ref={inputRef}
             name="name"
@@ -71,7 +72,7 @@ export function VoteSheet({
             minLength={2}
             maxLength={40}
             autoComplete="name"
-            placeholder="أبو فلان / أم فلان"
+            placeholder="مثال: محمد، فاطمة، خالتي سارة"
             className="h-11 rounded-lg border border-black/15 bg-white px-3 text-[15px] outline-none transition-colors focus:border-ink"
           />
         </label>

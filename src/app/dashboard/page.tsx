@@ -44,8 +44,8 @@ export default async function DashboardPage() {
           <table className="w-full border-collapse text-right text-[13.5px]">
             <thead className="sticky top-0 bg-white text-[11.5px] uppercase tracking-[0.18em] text-ink/50">
               <tr>
-                <th className="px-5 py-3 font-medium">الاسم</th>
-                <th className="px-5 py-3 font-medium">الاختيار</th>
+                <th className="px-5 py-3 font-medium">اسم المصوِّت</th>
+                <th className="px-5 py-3 font-medium">اختار</th>
                 <th className="px-5 py-3 font-medium">آخر تحديث</th>
               </tr>
             </thead>
