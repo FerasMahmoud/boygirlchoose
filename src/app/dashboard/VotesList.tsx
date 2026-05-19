@@ -1,10 +1,7 @@
 import type { Vote } from "@/server/schema";
 import type { DashTheme } from "./themes";
 
-const GIRL_DOT = "oklch(50% 0.14 5)";
-const BOY_DOT = "oklch(42% 0.14 240)";
-
-export function VotesList({ votes, mine, theme }: { votes: Vote[]; mine: Vote; theme: DashTheme }) {
+export function VotesList({ votes, theme }: { votes: Vote[]; theme: DashTheme }) {
   if (votes.length === 0)
     return (
       <div
@@ -19,7 +16,7 @@ export function VotesList({ votes, mine, theme }: { votes: Vote[]; mine: Vote; t
     <>
       <ul className="flex flex-col gap-2.5 md:hidden" aria-label="قائمة الأصوات">
         {votes.map((v) => (
-          <VoteCard key={v.id} v={v} mine={mine} theme={theme} />
+          <VoteCard key={v.id} v={v} theme={theme} />
         ))}
       </ul>
 
@@ -36,12 +33,12 @@ export function VotesList({ votes, mine, theme }: { votes: Vote[]; mine: Vote; t
               <th className="px-5 py-3 font-medium">اسم المصوِّت</th>
               <th className="px-5 py-3 font-medium">اختار</th>
               <th className="px-5 py-3 font-medium">اقتراح اسم المولود</th>
-              <th className="px-5 py-3 font-medium">آخر تحديث</th>
+              <th className="px-5 py-3 font-medium">الوقت</th>
             </tr>
           </thead>
           <tbody>
             {votes.map((v) => (
-              <VoteRow key={v.id} v={v} mine={mine} theme={theme} />
+              <VoteRow key={v.id} v={v} theme={theme} />
             ))}
           </tbody>
         </table>
@@ -50,9 +47,7 @@ export function VotesList({ votes, mine, theme }: { votes: Vote[]; mine: Vote; t
   );
 }
 
-function VoteCard({ v, mine, theme }: { v: Vote; mine: Vote; theme: DashTheme }) {
-  const isMe = v.id === mine.id;
-  const sameSide = v.choice === mine.choice;
+function VoteCard({ v, theme }: { v: Vote; theme: DashTheme }) {
   return (
     <li
       className="rounded-xl border px-3.5 py-3"
@@ -60,26 +55,16 @@ function VoteCard({ v, mine, theme }: { v: Vote; mine: Vote; theme: DashTheme })
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="truncate font-semibold" style={{ color: theme.ink }}>
-              {v.name}
-            </span>
-            {isMe ? (
-              <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-[10.5px] font-semibold"
-                style={{ background: theme.pillBg, color: theme.pillFg }}
-              >
-                أنت
-              </span>
-            ) : null}
-          </div>
+          <span className="block truncate font-semibold" style={{ color: theme.ink }}>
+            {v.name}
+          </span>
           {v.babyName ? (
             <div className="mt-1 text-[12.5px]" style={{ color: theme.inkSoft }}>
               اقترح: <span style={{ color: theme.ink, fontWeight: 500 }}>{v.babyName}</span>
             </div>
           ) : null}
         </div>
-        <ChoiceChip choice={v.choice} sameSide={sameSide} theme={theme} />
+        <ChoiceChip choice={v.choice} theme={theme} />
       </div>
       <div className="mt-2 font-mono text-[11px]" style={{ color: theme.inkSoft, opacity: 0.8 }}>
         {new Date(v.updatedAt).toLocaleString("ar", {
@@ -91,24 +76,12 @@ function VoteCard({ v, mine, theme }: { v: Vote; mine: Vote; theme: DashTheme })
   );
 }
 
-function VoteRow({ v, mine, theme }: { v: Vote; mine: Vote; theme: DashTheme }) {
-  const isMe = v.id === mine.id;
-  const sameSide = v.choice === mine.choice;
+function VoteRow({ v, theme }: { v: Vote; theme: DashTheme }) {
   return (
     <tr className="border-t" style={{ borderColor: theme.border }}>
-      <td className="px-5 py-3 font-medium">
-        {v.name}
-        {isMe ? (
-          <span
-            className="mr-2 inline-flex items-center rounded-full px-2 py-0.5 align-middle text-[11px]"
-            style={{ background: theme.pillBg, color: theme.pillFg }}
-          >
-            أنت
-          </span>
-        ) : null}
-      </td>
+      <td className="px-5 py-3 font-medium">{v.name}</td>
       <td className="px-5 py-3">
-        <ChoiceChip choice={v.choice} sameSide={sameSide} theme={theme} />
+        <ChoiceChip choice={v.choice} theme={theme} />
       </td>
       <td className="px-5 py-3">
         {v.babyName ? (
@@ -127,28 +100,15 @@ function VoteRow({ v, mine, theme }: { v: Vote; mine: Vote; theme: DashTheme }) 
   );
 }
 
-function ChoiceChip({
-  choice,
-  sameSide,
-  theme,
-}: {
-  choice: "boy" | "girl";
-  sameSide: boolean;
-  theme: DashTheme;
-}) {
+function ChoiceChip({ choice, theme }: { choice: "boy" | "girl"; theme: DashTheme }) {
+  const accent = choice === "boy" ? theme.boyAccent : theme.girlAccent;
+  const bg = choice === "boy" ? theme.chipBoy : theme.chipGirl;
   return (
     <span
       className="inline-flex shrink-0 items-center gap-2 rounded-full px-2.5 py-0.5 text-[12px]"
-      style={{
-        background: sameSide ? theme.chipMine : theme.chipOther,
-        color: sameSide ? theme.accent : theme.inkSoft,
-      }}
+      style={{ background: bg, color: accent }}
     >
-      <span
-        aria-hidden
-        className="h-1.5 w-1.5 rounded-full"
-        style={{ background: choice === "boy" ? BOY_DOT : GIRL_DOT }}
-      />
+      <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
       {choice === "boy" ? "ولد" : "بنت"}
     </span>
   );

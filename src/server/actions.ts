@@ -2,10 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { readVoteCookie, writeVoteCookie } from "./cookies";
-import { getClientId } from "./ip";
-import { rateLimit } from "./ratelimit";
-import { countVotesByIp, getVoteById, insertVote, MAX_PER_IP, updateVoteById } from "./store";
+import { insertVote } from "./store";
 
 export type VoteState = { ok: boolean; error?: string };
 
@@ -20,36 +17,7 @@ export async function submitVote(_prev: VoteState, fd: FormData): Promise<VoteSt
   if (!NAME_RE.test(nameRaw)) return { ok: false, error: "اسم غير صالح — حرفين على الأقل" };
   if (babyRaw && !BABY_RE.test(babyRaw)) return { ok: false, error: "اسم المولود غير صالح" };
 
-  const { ipHash } = await getClientId();
-
-  const rl = rateLimit(ipHash);
-  if (!rl.allowed) {
-    const seconds = Math.ceil(rl.resetIn / 1000);
-    return { ok: false, error: `محاولات كثيرة — أعد المحاولة بعد ${seconds} ثانية` };
-  }
-
-  const patch: { choice: "boy" | "girl"; name: string; babyName: string | null } = {
-    choice: choiceRaw,
-    name: nameRaw,
-    babyName: babyRaw || null,
-  };
-
-  const cookieVoteId = await readVoteCookie();
-  let saved = cookieVoteId ? await getVoteById(cookieVoteId) : null;
-
-  if (saved) {
-    saved = await updateVoteById(saved.id, patch);
-  } else {
-    const existingFromThisIp = await countVotesByIp(ipHash);
-    if (existingFromThisIp >= MAX_PER_IP)
-      return {
-        ok: false,
-        error: `بلغ هذا المنزل الحدّ الأقصى (${MAX_PER_IP} أصوات). امسح ذاكرة المتصفّح للتعديل.`,
-      };
-    saved = await insertVote({ ...patch, ipHash });
-    await writeVoteCookie(saved.id);
-  }
-
+  await insertVote({ choice: choiceRaw, name: nameRaw, babyName: babyRaw || null });
   revalidatePath("/dashboard");
   revalidatePath("/");
   redirect("/dashboard");
