@@ -1,69 +1,53 @@
-import { db, hasDb } from "./db";
-import { votes, type Vote } from "./schema";
 import { eq, sql } from "drizzle-orm";
+import { db, hasDb } from "./db";
+import { type Vote, votes } from "./schema";
 
 type MemVote = Vote;
-const mem = new Map<string, MemVote>();
+const mem = new Map<number, MemVote>();
 let memId = 1;
 
-export async function upsertVote(input: {
+export const MAX_PER_IP = 12;
+
+export async function countVotesByIp(ipHash: string): Promise<number> {
+  if (!hasDb) {
+    let n = 0;
+    for (const v of mem.values()) if (v.ipHash === ipHash) n++;
+    return n;
+  }
+  const rows = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(votes)
+    .where(eq(votes.ipHash, ipHash));
+  return rows[0]?.n ?? 0;
+}
+
+export async function insertVote(input: {
   choice: "boy" | "girl";
   name: string;
   babyName: string | null;
   ipHash: string;
 }): Promise<Vote> {
   if (!hasDb) {
-    const existing = mem.get(input.ipHash);
     const now = new Date();
-    const row: MemVote = existing
-      ? {
-          ...existing,
-          choice: input.choice,
-          name: input.name,
-          babyName: input.babyName,
-          updatedAt: now,
-        }
-      : {
-          id: memId++,
-          choice: input.choice,
-          name: input.name,
-          babyName: input.babyName,
-          ipHash: input.ipHash,
-          createdAt: now,
-          updatedAt: now,
-        };
-    mem.set(input.ipHash, row);
+    const row: MemVote = {
+      id: memId++,
+      choice: input.choice,
+      name: input.name,
+      babyName: input.babyName,
+      ipHash: input.ipHash,
+      createdAt: now,
+      updatedAt: now,
+    };
+    mem.set(row.id, row);
     return row;
   }
-
-  const [row] = await db
-    .insert(votes)
-    .values(input)
-    .onConflictDoUpdate({
-      target: votes.ipHash,
-      set: {
-        choice: input.choice,
-        name: input.name,
-        babyName: input.babyName,
-        updatedAt: new Date(),
-      },
-    })
-    .returning();
-  if (!row) throw new Error("upsert failed");
+  const [row] = await db.insert(votes).values(input).returning();
+  if (!row) throw new Error("insert failed");
   return row;
 }
 
-export async function getMyVote(ipHash: string): Promise<Vote | null> {
-  if (!hasDb) return mem.get(ipHash) ?? null;
-  const rows = await db.select().from(votes).where(eq(votes.ipHash, ipHash)).limit(1);
-  return rows[0] ?? null;
-}
-
 export async function getVoteById(id: number): Promise<Vote | null> {
-  if (!hasDb) {
-    for (const v of mem.values()) if (v.id === id) return v;
-    return null;
-  }
+  if (!hasDb) return mem.get(id) ?? null;
   const rows = await db.select().from(votes).where(eq(votes.id, id)).limit(1);
   return rows[0] ?? null;
 }
@@ -73,14 +57,11 @@ export async function updateVoteById(
   patch: { choice: "boy" | "girl"; name: string; babyName: string | null },
 ): Promise<Vote | null> {
   if (!hasDb) {
-    for (const v of mem.values()) {
-      if (v.id === id) {
-        const next = { ...v, ...patch, updatedAt: new Date() };
-        mem.set(v.ipHash, next);
-        return next;
-      }
-    }
-    return null;
+    const v = mem.get(id);
+    if (!v) return null;
+    const next = { ...v, ...patch, updatedAt: new Date() };
+    mem.set(id, next);
+    return next;
   }
   const [row] = await db
     .update(votes)

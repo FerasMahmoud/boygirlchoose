@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { readVoteCookie, writeVoteCookie } from "./cookies";
 import { getClientId } from "./ip";
 import { rateLimit } from "./ratelimit";
-import { getVoteById, upsertVote, updateVoteById } from "./store";
+import { countVotesByIp, getVoteById, insertVote, MAX_PER_IP, updateVoteById } from "./store";
 
 export type VoteState = { ok: boolean; error?: string };
 
@@ -28,18 +28,25 @@ export async function submitVote(_prev: VoteState, fd: FormData): Promise<VoteSt
     return { ok: false, error: `محاولات كثيرة — أعد المحاولة بعد ${seconds} ثانية` };
   }
 
-  const cookieVoteId = await readVoteCookie();
   const patch: { choice: "boy" | "girl"; name: string; babyName: string | null } = {
     choice: choiceRaw,
     name: nameRaw,
     babyName: babyRaw || null,
   };
 
+  const cookieVoteId = await readVoteCookie();
   let saved = cookieVoteId ? await getVoteById(cookieVoteId) : null;
+
   if (saved) {
     saved = await updateVoteById(saved.id, patch);
   } else {
-    saved = await upsertVote({ ...patch, ipHash });
+    const existingFromThisIp = await countVotesByIp(ipHash);
+    if (existingFromThisIp >= MAX_PER_IP)
+      return {
+        ok: false,
+        error: `بلغ هذا المنزل الحدّ الأقصى (${MAX_PER_IP} أصوات). امسح ذاكرة المتصفّح للتعديل.`,
+      };
+    saved = await insertVote({ ...patch, ipHash });
     await writeVoteCookie(saved.id);
   }
 

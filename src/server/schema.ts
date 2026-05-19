@@ -9,11 +9,14 @@ export const votes = pgTable(
     choice: choiceEnum("choice").notNull(),
     name: varchar("name", { length: 80 }).notNull(),
     babyName: varchar("baby_name", { length: 80 }),
-    ipHash: varchar("ip_hash", { length: 64 }).notNull().unique(),
+    ipHash: varchar("ip_hash", { length: 64 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => ({ choiceIdx: index("choice_idx").on(t.choice) }),
+  (t) => ({
+    choiceIdx: index("choice_idx").on(t.choice),
+    ipHashIdx: index("ip_hash_idx").on(t.ipHash),
+  }),
 );
 
 export type Vote = typeof votes.$inferSelect;
